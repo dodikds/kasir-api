@@ -138,3 +138,32 @@ func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		"message": "Product deleted successfully",
 	})
 }
+
+// HandleProductByIDDetails - GET /api/produk/details/{id}
+func (h *ProductHandler) HandleProductByIDDetails(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		h.GetByIDDetails(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+// GetByID - GET /api/produk/{id}
+func (h *ProductHandler) GetByIDDetails(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/details/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid product ID Details", http.StatusBadRequest)
+		return
+	}
+
+	product, err := h.service.GetByIDDetails(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(product)
+}
